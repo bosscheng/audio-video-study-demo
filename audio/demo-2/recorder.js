@@ -6,7 +6,6 @@ class Recorder {
             sampleRate: 48000
         });
         this.sourceNode = this.audioContext.createBufferSource();
-
         this.gainNode = this.audioContext.createGain();
         this.gainNode.gain.value = 1;
         this.sourceNode.connect(this.gainNode);

@@ -31,7 +31,9 @@
 
 
     function playCanvas(srcVideo, ctx) {
+
         ctx.drawImage(srcVideo, 0, 0, 640, 360)
+
         requestAnimationFrame(() => {
             playCanvas(srcVideo, ctx)
         })
