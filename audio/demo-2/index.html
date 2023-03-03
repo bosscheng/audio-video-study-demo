@@ -2,40 +2,26 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>demo 2</title>
 </head>
 <body>
 <div>
-    <button onclick="start()">start</button>
-    <button onclick="stop()">stop</button>
+    <button onclick="start()">采集</button>
+    <button onclick="destroy()">关闭</button>
 </div>
-<script src="./player/pcm-player.js"></script>
-<script src="./socket.io.js/socket.io.js"></script>
+<script src="./recorder.js"></script>
 <script>
-    let player = null;
-    let socket = null;
+    let recorder = null;
 
     function start() {
-        player = new PcmPlayer();
-        player.play();
-
-        socket = io('http://127.0.0.1:8000', {transports: ['websocket']});
-        socket.binaryType = 'arraybuffer';
-        socket.on('to-player', function (data) {
-            const buffer = new Float32Array(data);
-            console.log('player receive pcm: ', buffer.length);
-            player.pushBuffer(buffer);
+        recorder = new Recorder({
+            url: './viper.mp3'
         });
     }
 
-    function stop() {
-        if (player) {
-            player.destroy();
-            player = null;
-        }
-        if(socket){
-            socket.disconnect();
-            socket = null;
+    function destroy(){
+        if (recorder) {
+            recorder.destroy();
         }
     }
 </script>
