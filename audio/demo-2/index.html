@@ -5,6 +5,39 @@
     <title>Title</title>
 </head>
 <body>
+<div>
+    <button onclick="start()">start</button>
+    <button onclick="stop()">stop</button>
+</div>
+<script src="./player/pcm-player.js"></script>
+<script src="./socket.io.js/socket.io.js"></script>
+<script>
+    let player = null;
+    let socket = null;
 
+    function start() {
+        player = new PcmPlayer();
+        player.play();
+
+        socket = io('http://127.0.0.1:8000', {transports: ['websocket']});
+        socket.binaryType = 'arraybuffer';
+        socket.on('to-player', function (data) {
+            const buffer = new Float32Array(data);
+            console.log('player receive pcm: ', buffer.length);
+            player.pushBuffer(buffer);
+        });
+    }
+
+    function stop() {
+        if (player) {
+            player.destroy();
+            player = null;
+        }
+        if(socket){
+            socket.disconnect();
+            socket = null;
+        }
+    }
+</script>
 </body>
 </html>

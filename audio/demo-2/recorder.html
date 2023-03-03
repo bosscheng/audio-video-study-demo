@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="./recorder/recorder.js"></script>
+    <script src="./socket.io.js/socket.io.js"></script>
+
+</head>
+<body>
+<div>
+    <button onclick="startRecord()">录音</button>
+    <button onclick="destroyRecord()">关闭</button>
+</div>
+<script>
+    let recorder = null;
+    let socket = null;
+
+    function startRecord() {
+        socket = io('http://127.0.0.1:8000', {transports: ['websocket']});
+        socket.binaryType = 'arraybuffer';
+        recorder = new Recorder({
+            pcmCallback: (pcmData) => {
+                socket.emit('pcm-data', {
+                    pcm: pcmData,
+                });
+            }
+        });
+
+    }
+
+    function destroyRecord() {
+        if (recorder) {
+            recorder.destroy();
+        }
+        if (socket) {
+            socket.disconnect();
+            socket = null;
+        }
+    }
+</script>
+</body>
+</html>
