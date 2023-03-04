@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<script src="./lame.all.js"></script>
+<script src="./mp3-encode.js"></script>
+<script>
+    var wavFile = "./media/Left44100.wav";
+
+    var request = new XMLHttpRequest();
+    request.open("GET", wavFile, true);
+    request.responseType = "arraybuffer";
+
+    // Our asynchronous callback
+    request.onload = function () {
+        var audioData = request.response;
+        var wav = lamejs.WavHeader.readHeader(new DataView(audioData));
+        console.log('wav:', wav);
+        var samples = new Int16Array(audioData, wav.dataOffset, wav.dataLen / 2);
+        encodeMono(wav.channels, wav.sampleRate, samples);
+    };
+    request.send();
+</script>
+</body>
+</html>
