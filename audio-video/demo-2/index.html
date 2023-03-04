@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>视频采集-桌面+麦克风</title>
+    <title>视频采集-摄像头+麦克风</title>
 </head>
 <body>
 <div style="margin-top:10px;display: flex;align-items: center;justify-content: center">
@@ -14,15 +14,12 @@
 <script>
 
     navigator.mediaDevices.getUserMedia({
-        audio: true
+        audio: true,
+        video: true
     }).then(function (mediaStream) {
         const srcVideo = document.getElementById("srcVideo")
-        navigator.mediaDevices.getDisplayMedia().then((displayMediaStream) => {
-            displayMediaStream.addTrack(mediaStream.getAudioTracks()[0]);
-            srcVideo.srcObject = displayMediaStream;
-            srcVideo.play()
-        })
-
+        srcVideo.srcObject = mediaStream;
+        srcVideo.play()
     })
 
 </script>
