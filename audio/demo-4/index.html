@@ -2,9 +2,52 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>音频编码-wav</title>
+    <script src="./recorder.js"></script>
+    <script src="./wav-encode.js"></script>
 </head>
 <body>
+<p id="tips"></p>
+<button onclick="start()">开始录音</button>
+<button onclick="stopAndSave()">结束录音（下载wav）</button>
+<script>
+    const $tips = document.getElementById('tips');
+    let recorder = null;
+    let bufferList = new Uint32Array(0);
 
+    function start() {
+        recorder = new Recorder({
+            onData: (buffer) => {
+                const temp = new Uint32Array(buffer.length + bufferList.length);
+                temp.set(bufferList, 0);
+                temp.set(buffer, bufferList.length);
+                bufferList = temp;
+            }
+        })
+        $tips.innerText = '正在录音...';
+    }
+
+    function stopAndSave() {
+        let result = null;
+        recorder.destroy();
+        recorder = null;
+        result = encodeWAV(bufferList, 48000, 48000, 1, 32);
+        $tips.innerText = '录音结束，正在下载。。。。。。';
+
+
+        if (result) {
+            const blob = new Blob([result]);
+            try {
+                const oa = document.createElement('a');
+                oa.href = window.URL.createObjectURL(blob);
+                oa.download = Date.now() + '.wav';
+                oa.click();
+                $tips.innerText = '';
+            } catch (e) {
+                console.error('download', e);
+            }
+        }
+    }
+</script>
 </body>
 </html>

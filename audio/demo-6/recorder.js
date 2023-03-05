@@ -119,7 +119,7 @@ class Recorder {
 
 
     processAudio(buffer) {
-        console.log('processAudio', buffer);
+        // console.log('processAudio', buffer);
         if (this.onData) {
             this.onData(buffer);
         }

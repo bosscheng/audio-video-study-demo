@@ -2,9 +2,57 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>音频编码-opus</title>
+    <script src="./recorder.js"></script>
+    <script src="./libopus.js"></script>
+    <script src="./opus-encode.js"></script>
 </head>
 <body>
+<p id="tips"></p>
+<button onclick="start()">开始录音</button>
+<button onclick="stopAndSave()">结束录音（下载opus）</button>
+<script>
+    const $tips = document.getElementById('tips');
+    let recorder = null;
+    let bufferList = [];
+    let encoder = null;
 
+    function start() {
+        encoder = new OpusEncoder(
+            48000, // sampleRate
+            1, // channelCount
+            2049, // application
+            10 // frameDuration
+        );
+        recorder = new Recorder({
+            bufferSize: 480,
+            onData: (buffer) => {
+                bufferList.push(encoder.encode_float(buffer));
+            }
+        })
+        $tips.innerText = '正在录音...';
+    }
+
+    function stopAndSave() {
+        recorder.destroy();
+        recorder = null;
+        encoder.destroy();
+        encoder = null;
+        $tips.innerText = '录音结束，正在下载。。。。。。';
+
+        if(bufferList){
+            const blob = new Blob([bufferList]);
+            try {
+                const oa = document.createElement('a');
+                oa.href = window.URL.createObjectURL(blob);
+                oa.download = Date.now() + '.opus';
+                oa.click();
+                $tips.innerText = '';
+            } catch (e) {
+                console.error('download', e);
+            }
+        }
+    }
+</script>
 </body>
 </html>

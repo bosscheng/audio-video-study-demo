@@ -14,7 +14,11 @@
     let recorder = null;
 
     function startRecord() {
-        recorder = new Recorder();
+        recorder = new Recorder({
+            onData: () => {
+
+            }
+        });
 
     }
 

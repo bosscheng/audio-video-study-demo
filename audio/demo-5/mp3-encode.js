@@ -24,5 +24,7 @@ function encodeMono(channels, sampleRate, samples) {
     window.myAudioPlayer.src = bUrl;
     window.myAudioPlayer.setAttribute('controls', '');
     window.myAudioPlayer.play();
+
+    return blob;
 }
 

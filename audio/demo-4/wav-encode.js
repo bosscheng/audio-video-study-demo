@@ -11,7 +11,14 @@
  * @returns {DataView}               wav二进制数据
  * @memberof Recorder
  */
-encodeWAV = function (bytes, inputSampleRate, outputSampleRate, numChannels, oututSampleBits) {
+let encodeWAV = function (bytes, inputSampleRate, outputSampleRate, numChannels, oututSampleBits) {
+
+    var writeString = function (view, offset, string) {
+        for (var i = 0; i < string.length; i++) {
+            view.setUint8(offset + i, string.charCodeAt(i));
+        }
+    }
+
     var sampleRate = Math.min(inputSampleRate,
             outputSampleRate),
         sampleBits = oututSampleBits,
@@ -60,7 +67,7 @@ encodeWAV = function (bytes, inputSampleRate, outputSampleRate, numChannels, out
     offset += 4;
     // 给wav头增加pcm体
     for (var i = 0; i < bytes.byteLength;) {
-        data.setUint8(offset, bytes.getUint8(i));
+        data.setUint8(offset, data.getUint8(i));
         offset++;
         i++;
     }

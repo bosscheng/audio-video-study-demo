@@ -18,6 +18,7 @@ class Recorder {
             sampleRate: 48000
         });
         this.onData = options.onData;
+        this.bufferSize = options.bufferSize || 512
 
         this.gainNode = this.audioContext.createGain();
         this.gainNode.gain.value = 1;
@@ -74,7 +75,7 @@ class Recorder {
         this.audioContext.audioWorklet.addModule(createWorkletModuleUrl(recordWorkletProcessor)).then(() => {
             this.recordProcessor = new AudioWorkletNode(this.audioContext, "record-processor", {
                 processorOptions: {
-                    bufferSize: 512 // 一次采集到的数据 512 个采样点
+                    bufferSize: this.bufferSize // 一次采集到的数据 bufferSize 个采样点
                 }
             });
 
@@ -119,7 +120,7 @@ class Recorder {
 
 
     processAudio(buffer) {
-        console.log('processAudio', buffer);
+        // console.log('processAudio', buffer);
         if (this.onData) {
             this.onData(buffer);
         }
