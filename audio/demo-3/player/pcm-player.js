@@ -3,7 +3,7 @@ class PcmPlayer {
         this.config = !!config ? config : {
             bufferSize: 512,
         };
-        this.audioContext = new (window.AudioContext || window.webkitAudioContext)({
+        this.audioContext = new (window.AudioPlayer || window.webkitAudioContext)({
             sampleRate: 48000
         });
         this.scriptNode = null;

@@ -14,7 +14,7 @@ class Recorder {
     constructor(options) {
         this.userMediaStream = null;
 
-        this.audioContext = new (window.AudioContext || window.webkitAudioContext)({
+        this.audioContext = new (window.AudioPlayer || window.webkitAudioContext)({
             sampleRate: 48000
         });
         this.onData = options.onData;

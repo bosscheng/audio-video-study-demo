@@ -79,7 +79,7 @@ class DemoPlayer {
 
     _initAudioCtx() {
         if (!this.audioCtx) {
-            this.audioCtx = new (window.AudioContext || window.webkitAudioContext)({
+            this.audioCtx = new (window.AudioPlayer || window.webkitAudioContext)({
                 sampleRate: 48000
             })
         }

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div>
+    <span>FLV流请求地址:</span>
+    <input type="text" value="https://live.nodemedia.cn:8443/live/b480_264.flv" id="href" style="width: 300px">
+    <button id="request" onclick="startRequest()">请求</button>
+    <button onclick="abortRequest()">断开</button>
+</div>
+<script src="./flv-decoder.dev.js"></script>
+<script>
+
+    // https://live.nodemedia.cn:8443/live/b480_264.flv
+    // https://live.nodemedia.cn:8443/live/b480_265.flv
+    let flvDemuxer;
+    let decoder;
+    let abortController;
+
+    function startRequest() {
+        const href = document.getElementById('href').value;
+        if (!href) {
+            return;
+        }
+        flvDemuxer = new FlvDemuxer();
+        decoder = new DecoderFull();
+        abortController = new AbortController();
+
+        fetch(href, {signal: abortController.signal}).then((res) => {
+            const reader = res.body.getReader();
+            let fetchNext = async () => {
+
+                let {done, value} = await reader.read();
+
+                if (done) {
+                    console.log('fetch done')
+                } else {
+
+                    flvDemuxer.dispatch(value);
+                    fetchNext();
+                }
+            }
+            fetchNext();
+        })
+
+
+        //
+        flvDemuxer.on('videoExtraData', (envelope) => {
+            // console.log('videoExtraData');
+            decoder.setCodecVideo(envelope.codecId, envelope.extraData);
+        });
+
+        flvDemuxer.on('videoData', (envelope) => {
+            // console.log('videoData',envelope.isKeyFrame,envelope.timestamp);
+            decoder.decodeVideo(envelope.nalu, envelope.isKeyFrame, envelope.timestamp);
+        });
+
+        flvDemuxer.on('audioExtraData', (envelope) => {
+            decoder.setCodecAudio(envelope.codecId, envelope.extraData);
+        })
+
+        flvDemuxer.on('audioData', (envelope) => {
+            decoder.decodeAudio(envelope.data, envelope.timestamp);
+        })
+    }
+
+    function abortRequest() {
+        if (abortController) {
+            abortController.abort();
+            abortController = null;
+        }
+        if (flvDemuxer) {
+            flvDemuxer.destroy();
+            flvDemuxer = null;
+        }
+
+        if(decoder){
+            decoder.destroy();
+            decoder = null;
+        }
+    }
+</script>
+</body>
+</html>

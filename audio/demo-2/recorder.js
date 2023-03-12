@@ -2,7 +2,7 @@ class Recorder {
     constructor(options) {
         this.sourceUrl = options.url;
         this.audioData = null;
-        this.audioContext = new (window.AudioContext || window.webkitAudioContext)({
+        this.audioContext = new (window.AudioPlayer || window.webkitAudioContext)({
             sampleRate: 48000
         });
         this.sourceNode = this.audioContext.createBufferSource();

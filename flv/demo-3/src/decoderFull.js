@@ -1,6 +1,16 @@
 import DecoderModule from '../decoder/decoder-full';
 import Emitter from "./emitter";
 
+DecoderModule.postRun = function () {
+    console.log('decoderModule.postRun');
+    // this.audioDecoder = new DecoderModule.AudioDecoder(this);
+    // this.videoDecoder = new DecoderModule.VideoDecoder(this);
+    // this.hasInit = true;
+    // if(this.initResoleFn){
+    //     this.initResoleFn();
+    // }
+}
+
 class DecoderFull extends Emitter {
     constructor() {
         super();
@@ -8,6 +18,8 @@ class DecoderFull extends Emitter {
         this.videoDecoder = null;
         this.hasVideoConfigured = false;
         this.hasAudioConfigured = false;
+        this.audioDecoder = new DecoderModule.AudioDecoder(this);
+        this.videoDecoder = new DecoderModule.VideoDecoder(this);
     }
 
     destroy() {
@@ -24,18 +36,6 @@ class DecoderFull extends Emitter {
         }
     }
 
-    init() {
-        return new Promise((resolve, reject) => {
-            DecoderModule.postRun = function () {
-                console.log('decoderModule.postRun');
-                // workerPostRun(decoderModule);
-                this.audioDecoder = new DecoderModule.AudioDecoder(this);
-                this.videoDecoder = new DecoderModule.VideoDecoder(this);
-                resolve();
-            }
-        })
-    }
-
     decodeAudio(data, timestamp) {
         if (!this.hasAudioConfigured) {
             console.error('audio not configured')
@@ -44,24 +44,25 @@ class DecoderFull extends Emitter {
         this.audioDecoder.decode(data, timestamp);
     }
 
-    setCodecAudio(audioType, extraData) {
+    setCodecAudio(codecId, extraData) {
         if (!this.hasAudioConfigured) {
-            this.audioDecoder.setCodec(audioType, extraData);
+            console.log('setCodecAudio', codecId);
+            this.audioDecoder.setCodec(codecId, 48000, extraData);
             this.hasAudioConfigured = true;
         }
     }
-
 
     decodeVideo(data, isKeyFrame, timestamp) {
         if (!this.hasVideoConfigured) {
             console.error('video not configured')
             return;
         }
-        this.videoDecoder.decode(data, isKeyFrame, timestamp);
+        this.videoDecoder.decode(data, isKeyFrame ? 1 : 0, timestamp);
     }
 
     setCodecVideo(videoType, extraData) {
         if (!this.hasVideoConfigured) {
+            console.log('setCodecVideo', videoType);
             this.videoDecoder.setCodec(videoType, extraData);
             this.hasVideoConfigured = true;
         }
@@ -69,22 +70,22 @@ class DecoderFull extends Emitter {
 
     // c 调用 js 的方法
     videoInfo(videoCode, width, height) {
-
+        console.log('c++ call js videoInfo', videoCode, width, height)
     }
 
     // c 调用 js 的方法
     audioInfo(audioCode, sampleRate, channels) {
-
+        console.log('c++ call js audioInfo', audioCode, sampleRate, channels)
     }
 
     // c 调用 js 的方法
     yuvData(yuv, ts) {
-
+        console.log('c++ call js yuvData', ts)
     }
 
     // c 调用 js 的方法
     pcmData(data, len, ts) {
-
+        console.log('c++ call js pcmData', ts)
     }
 
 }
