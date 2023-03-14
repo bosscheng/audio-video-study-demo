@@ -1,0 +1,9 @@
+class WcsDecoder{
+    constructor() {
+
+    }
+    destroy(){
+
+    }
+
+}
