@@ -116,11 +116,9 @@ class DecoderFull extends Emitter {
 
     // c 调用 js 的方法
     pcmData(data, len, ts) {
-        console.log('c++ call js pcmData', ts)
+        console.log('c++ call js pcmData', ts,len)
         var frameCount = len;
         var origin = this.audioOrigin;
-        var start = this.audioStart;
-        var remain = this.audioRemain;
         var outputArray = this.audioOutputArray;
         let tempAudioBuffer = this.audioTempAudioBuffer;
         let channels = this.audioChannels;
@@ -128,45 +126,10 @@ class DecoderFull extends Emitter {
             var fp = DecoderModule.HEAPU32[(data >> 2) + channel] >> 2;
             origin[channel] = DecoderModule.HEAPF32.subarray(fp, fp + frameCount);
         }
-        if (remain) {
-            len = 1024 - remain;
-            if (frameCount >= len) {
-                outputArray[0] = Float32Array.of(...tempAudioBuffer[0], ...origin[0].subarray(0, len));
-                if (channels == 2) {
-                    outputArray[1] = Float32Array.of(...tempAudioBuffer[1], ...origin[1].subarray(0, len));
-                }
-
-                this.emit('pcmData', {
-                    ts,
-                    pcmData: outputArray
-                })
-                start = len;
-                frameCount -= len;
-            } else {
-                remain += frameCount;
-                tempAudioBuffer[0] = Float32Array.of(...tempAudioBuffer[0], ...origin[0]);
-                if (channels == 2) {
-                    tempAudioBuffer[1] = Float32Array.of(...tempAudioBuffer[1], ...origin[1]);
-                }
-                return;
-            }
-        }
-        for (remain = frameCount; remain >= 1024; remain -= 1024) {
-            outputArray[0] = origin[0].slice(start, start += 1024);
-            if (channels == 2) {
-                outputArray[1] = origin[1].slice(start - 1024, start);
-            }
-            this.emit('pcmData', {
-                ts,
-                pcmData: outputArray
-            })
-        }
-        if (remain) {
-            tempAudioBuffer[0] = origin[0].slice(start);
-            if (channels == 2) {
-                tempAudioBuffer[1] = origin[1].slice(start);
-            }
-        }
+        this.emit('pcmData', {
+            ts,
+            pcmData: origin
+        })
     }
 }
 

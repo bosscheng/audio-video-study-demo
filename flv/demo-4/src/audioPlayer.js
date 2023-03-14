@@ -63,6 +63,7 @@ class AudioPlayer {
 
         // audio 基本信息
         if (this.audioInfo.sampleRate && this.audioInfo.channels && this.audioInfo.encType && !this.init) {
+            console.log('audioInfo', this.audioInfo)
             this.init = true;
         }
     }
@@ -70,7 +71,7 @@ class AudioPlayer {
     initScriptNode() {
         const channels = this.audioInfo.channels;
 
-        const scriptNode = this.audioContext.createScriptProcessor(1024, 0, channels);
+        const scriptNode = this.audioContext.createScriptProcessor(2048, 0, channels);
         // tips: if audio isStateSuspended  onaudioprocess method not working
         scriptNode.onaudioprocess = (audioProcessingEvent) => {
             const outputBuffer = audioProcessingEvent.outputBuffer;
@@ -82,7 +83,7 @@ class AudioPlayer {
                 for (let channel = 0; channel < channels; channel++) {
                     const b = bufferItem.buffer[channel]
                     const nowBuffering = outputBuffer.getChannelData(channel);
-                    for (let i = 0; i < 1024; i++) {
+                    for (let i = 0; i < 2048; i++) {
                         nowBuffering[i] = b[i] || 0
                     }
                 }

@@ -523,67 +523,6 @@
 	  return FlvDemuxer;
 	}(Emitter);
 
-	var arrayLikeToArray = createCommonjsModule(function (module) {
-	function _arrayLikeToArray(arr, len) {
-	  if (len == null || len > arr.length) len = arr.length;
-	  for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i];
-	  return arr2;
-	}
-	module.exports = _arrayLikeToArray, module.exports.__esModule = true, module.exports["default"] = module.exports;
-	});
-
-	unwrapExports(arrayLikeToArray);
-
-	var arrayWithoutHoles = createCommonjsModule(function (module) {
-	function _arrayWithoutHoles(arr) {
-	  if (Array.isArray(arr)) return arrayLikeToArray(arr);
-	}
-	module.exports = _arrayWithoutHoles, module.exports.__esModule = true, module.exports["default"] = module.exports;
-	});
-
-	unwrapExports(arrayWithoutHoles);
-
-	var iterableToArray = createCommonjsModule(function (module) {
-	function _iterableToArray(iter) {
-	  if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter);
-	}
-	module.exports = _iterableToArray, module.exports.__esModule = true, module.exports["default"] = module.exports;
-	});
-
-	unwrapExports(iterableToArray);
-
-	var unsupportedIterableToArray = createCommonjsModule(function (module) {
-	function _unsupportedIterableToArray(o, minLen) {
-	  if (!o) return;
-	  if (typeof o === "string") return arrayLikeToArray(o, minLen);
-	  var n = Object.prototype.toString.call(o).slice(8, -1);
-	  if (n === "Object" && o.constructor) n = o.constructor.name;
-	  if (n === "Map" || n === "Set") return Array.from(o);
-	  if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return arrayLikeToArray(o, minLen);
-	}
-	module.exports = _unsupportedIterableToArray, module.exports.__esModule = true, module.exports["default"] = module.exports;
-	});
-
-	unwrapExports(unsupportedIterableToArray);
-
-	var nonIterableSpread = createCommonjsModule(function (module) {
-	function _nonIterableSpread() {
-	  throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
-	}
-	module.exports = _nonIterableSpread, module.exports.__esModule = true, module.exports["default"] = module.exports;
-	});
-
-	unwrapExports(nonIterableSpread);
-
-	var toConsumableArray = createCommonjsModule(function (module) {
-	function _toConsumableArray(arr) {
-	  return arrayWithoutHoles(arr) || iterableToArray(arr) || unsupportedIterableToArray(arr) || nonIterableSpread();
-	}
-	module.exports = _toConsumableArray, module.exports.__esModule = true, module.exports["default"] = module.exports;
-	});
-
-	var _toConsumableArray = unwrapExports(toConsumableArray);
-
 	var decoderFull = createCommonjsModule(function (module) {
 	  var Module = typeof Module != "undefined" ? Module : {};
 	  var moduleOverrides = Object.assign({}, Module);
@@ -5340,56 +5279,20 @@
 	  }, {
 	    key: "pcmData",
 	    value: function pcmData(data, len, ts) {
-	      console.log('c++ call js pcmData', ts);
+	      console.log('c++ call js pcmData', ts, len);
 	      var frameCount = len;
 	      var origin = this.audioOrigin;
-	      var start = this.audioStart;
-	      var remain = this.audioRemain;
-	      var outputArray = this.audioOutputArray;
-	      var tempAudioBuffer = this.audioTempAudioBuffer;
-	      var channels = this.audioChannels;
+	      this.audioOutputArray;
+	      this.audioTempAudioBuffer;
+	      this.audioChannels;
 	      for (var channel = 0; channel < 2; channel++) {
 	        var fp = decoderFull.HEAPU32[(data >> 2) + channel] >> 2;
 	        origin[channel] = decoderFull.HEAPF32.subarray(fp, fp + frameCount);
 	      }
-	      if (remain) {
-	        len = 1024 - remain;
-	        if (frameCount >= len) {
-	          outputArray[0] = Float32Array.of.apply(Float32Array, _toConsumableArray(tempAudioBuffer[0]).concat(_toConsumableArray(origin[0].subarray(0, len))));
-	          if (channels == 2) {
-	            outputArray[1] = Float32Array.of.apply(Float32Array, _toConsumableArray(tempAudioBuffer[1]).concat(_toConsumableArray(origin[1].subarray(0, len))));
-	          }
-	          this.emit('pcmData', {
-	            ts: ts,
-	            pcmData: outputArray
-	          });
-	          start = len;
-	          frameCount -= len;
-	        } else {
-	          remain += frameCount;
-	          tempAudioBuffer[0] = Float32Array.of.apply(Float32Array, _toConsumableArray(tempAudioBuffer[0]).concat(_toConsumableArray(origin[0])));
-	          if (channels == 2) {
-	            tempAudioBuffer[1] = Float32Array.of.apply(Float32Array, _toConsumableArray(tempAudioBuffer[1]).concat(_toConsumableArray(origin[1])));
-	          }
-	          return;
-	        }
-	      }
-	      for (remain = frameCount; remain >= 1024; remain -= 1024) {
-	        outputArray[0] = origin[0].slice(start, start += 1024);
-	        if (channels == 2) {
-	          outputArray[1] = origin[1].slice(start - 1024, start);
-	        }
-	        this.emit('pcmData', {
-	          ts: ts,
-	          pcmData: outputArray
-	        });
-	      }
-	      if (remain) {
-	        tempAudioBuffer[0] = origin[0].slice(start);
-	        if (channels == 2) {
-	          tempAudioBuffer[1] = origin[1].slice(start);
-	        }
-	      }
+	      this.emit('pcmData', {
+	        ts: ts,
+	        pcmData: origin
+	      });
 	    }
 	  }]);
 	  return DecoderFull;
@@ -5457,6 +5360,7 @@
 
 	      // audio 基本信息
 	      if (this.audioInfo.sampleRate && this.audioInfo.channels && this.audioInfo.encType && !this.init) {
+	        console.log('audioInfo', this.audioInfo);
 	        this.init = true;
 	      }
 	    }
@@ -5465,7 +5369,7 @@
 	    value: function initScriptNode() {
 	      var _this = this;
 	      var channels = this.audioInfo.channels;
-	      var scriptNode = this.audioContext.createScriptProcessor(1024, 0, channels);
+	      var scriptNode = this.audioContext.createScriptProcessor(2048, 0, channels);
 	      // tips: if audio isStateSuspended  onaudioprocess method not working
 	      scriptNode.onaudioprocess = function (audioProcessingEvent) {
 	        var outputBuffer = audioProcessingEvent.outputBuffer;
@@ -5474,7 +5378,7 @@
 	          for (var channel = 0; channel < channels; channel++) {
 	            var b = bufferItem.buffer[channel];
 	            var nowBuffering = outputBuffer.getChannelData(channel);
-	            for (var i = 0; i < 1024; i++) {
+	            for (var i = 0; i < 2048; i++) {
 	              nowBuffering[i] = b[i] || 0;
 	            }
 	          }
